@@ -10,6 +10,13 @@
 
 class USocketClientBPLibrary;
 
+struct FGameServerProcess
+{
+	FString MapPath;
+	uint32	ProcID;
+	FProcHandle ProcHandle;
+};
+
 /**
  * 
  */
@@ -23,6 +30,10 @@ public:
 
 	FString ConnectionID;
 	USocketClientBPLibrary* SocketClient;
+
+
+	TMap<FGuid, FGameServerProcess> GameServerProcessMap;
+
 public:
 
 	virtual void BeginPlay() override;
@@ -36,5 +47,6 @@ public:
 	UFUNCTION()
 	void receiveTCPMessageEventDelegate(const FString message, const TArray<uint8>& byteArray, const FString clientConnectionIDP);
 	
-
+	FGuid CreateGameServerProcess(FString MapPath);
+	void KillGameServerProcess(FGuid Giud);
 };
