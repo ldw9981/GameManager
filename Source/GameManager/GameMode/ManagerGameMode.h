@@ -5,43 +5,80 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "SocketServer/Public/SocketServer.h"
+#include "SocketClient/Public/SocketClient.h"
+#include "GameManager/GameManager.h"
 #include "ManagerGameMode.generated.h"
+
+
+
+
 
 /**
  * 
  */
-UCLASS()
+UCLASS(Config = Game)
 class GAMEMANAGER_API AManagerGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+
 public:
-	FString ServerID;
+
+
+	UPROPERTY(Config)
+	FString ManagerIP;
+
+	UPROPERTY(Config)
+	int		ManagerPort;
+
+	UPROPERTY(Config)
+	int		ObserverPort;
+
+	UPROPERTY(Config)
+	FString GameServerPath;
+
+	UPROPERTY(Config)
+	FString CommmaPersistentMaps;
+
+	USocketServerBPLibrary* SocketServer;
+	USocketClientBPLibrary* SocketClient;
+	FString AgentServerID;
+	FString MasterServerID;
+
+	FString ConnectionID;
+
+	TArray<FString> GameServerSessionIDs;
+	TArray<FString> AgentServerSessionIDs;
+
+	TArray<FString> PersistentMaps;
+
+	TMap<FGuid, FGameServerInfo> AgentGameServerInfos;
+	TMap<FGuid, FGameServerInfo> MasterGameServerInfos;
+	bool	CreateProcess;
 public:
+	AManagerGameMode();
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	   
 	UFUNCTION()
-	void socketServerConnectionEventDelegate(const EServerSocketConnectionEventType type, const bool success, const FString message, const FString sessionID, const FString serverID);
+	void OnServerConnection(const EServerSocketConnectionEventType type, const bool success, const FString message, const FString sessionID, const FString serverID);
 	
 	UFUNCTION()
-	void serverReceiveTCPMessageEventDelegate(const FString sessionID, const FString message, const TArray<uint8>& byteArray, const FString serverID);
-	
+	void OnServerReceive(const FString sessionID, const FString message, const TArray<uint8>& byteArray, const FString serverID);
+
 	UFUNCTION()
-	void serverReceiveTCPFileDownloadEventDelegate(const int32 statusCode, const FString statusMessage, const FString sessionID, const FString serverID, const FString fullPath);
-	
+	void OnClientConnection(const bool success, const FString message, const FString clientConnectionIDP);
+
 	UFUNCTION()
-	void serverReceiveTCPFileDownloadProgressEventDelegate(const FSocketServerDownloadFileInfo fileInfo);
-	
-	UFUNCTION()
-	void serverSendTCPFileUploadEventDelegate(const int32 statusCode, const FString statusMessage, const FString sessionID, const FString serverID, const FString fullPath);
-	
-	UFUNCTION()
-	void serverSendTCPFileUploadProgressEventDelegate(const FSocketServerUploadFileInfo fileInfo);
-	
-	UFUNCTION()
-	void socketServerUDPConnectionEventDelegate(const bool success, const FString message, const FString serverID);
-	
-	UFUNCTION()
-	void serverReceiveUDPMessageEventDelegate(const FString sessionID, const FString message, const TArray<uint8>& byteArray, const FString serverID);
+	void OnClientReceive(const FString message, const TArray<uint8>& byteArray, const FString clientConnectionIDP);
+
+
+	void ConnectToMaster();
+
+	void Test();
+
+
+
+	FGameServerInfo* CreateGameServerProcess(FString MapPath);
+	void CloseGameServerProcess(FGuid Guid);
 };

@@ -1,0 +1,1 @@
+"C:\Program Files\Epic Games\UE_4.25\Engine\Binaries\Win64\UE4Editor.exe" "%cd%\GameManager.uproject" /Game/Maps/ThirdPersonExampleMap -GUID=2323
